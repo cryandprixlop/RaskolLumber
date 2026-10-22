@@ -1,9 +1,8 @@
 # ===== RaskolLumber =====
-regrow-seconds: 600         # через сколько вырастет новое дерево (600 = 10 мин)
-require-axe: true           # рубить можно только топором
-allow-player-drop: true     # выпадает ли бревно/листва игроку (false — нет, но регенерация всё равно)
+regrow-seconds: 600
+require-axe: true
+allow-player-drop: true
 
-# Материалы, считающиеся топорами.
 axes:
   - WOODEN_AXE
   - STONE_AXE
@@ -12,7 +11,6 @@ axes:
   - DIAMOND_AXE
   - NETHERITE_AXE
 
-# Материалы, считающиеся брёвнами.
 logs:
   - OAK_LOG
   - SPRUCE_LOG
