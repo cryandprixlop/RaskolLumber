@@ -2,6 +2,8 @@ package ru.raskol.lumber.listener;
 
 import org.bukkit.Material;
 import org.bukkit.TreeType;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -26,28 +28,27 @@ public final class LumberListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBreak(BlockBreakEvent event) {
-        if (event.getBlock().getType() == Material.AIR) return;
+        Block broken = event.getBlock();
+        Material mat = broken.getType();
+
+        List<String> logs = plugin.getConfig().getStringList("logs");
+        if (!logs.contains(mat.name())) return;
 
         // В зоне ли?
         LumberZone zone = null;
         for (LumberZone z : store.all()) {
-            if (z.region != null && z.region.contains(event.getBlock().getLocation())) {
+            if (z.region != null && z.region.contains(broken.getLocation())) {
                 zone = z;
                 break;
             }
         }
         if (zone == null) return;
 
-        Material mat = event.getBlock().getType();
-        List<String> logs = plugin.getConfig().getStringList("logs");
-        if (!logs.contains(mat.name())) return;
-
         // Топор?
         if (plugin.getConfig().getBoolean("require-axe", true)) {
             Player p = event.getPlayer();
             Material hand = p.getInventory().getItemInMainHand().getType();
-            List<String> axes = plugin.getConfig().getStringList("axes");
-            if (!axes.contains(hand.name())) return;
+            if (!plugin.getConfig().getStringList("axes").contains(hand.name())) return;
         }
 
         // Дроп?
@@ -55,24 +56,31 @@ public final class LumberListener implements Listener {
             event.setDropItems(false);
         }
 
-        // Планируем регенерацию
+        // Спускаемся до основания ствола: одна посадка на одно дерево
+        Block base = broken;
+        while (logs.contains(base.getRelative(BlockFace.DOWN).getType().name())) {
+            base = base.getRelative(BlockFace.DOWN);
+        }
+        String world = base.getWorld().getName();
+        if (store.hasPendingAt(world, base.getX(), base.getY(), base.getZ())) return;
+
         TreeType type = treeTypeOf(mat);
         if (type == null) return;
 
         int delaySec = plugin.getConfig().getInt("regrow-seconds", 600);
 
         PendingTree p = new PendingTree();
-        p.world = event.getBlock().getWorld().getName();
-        p.x = event.getBlock().getX();
-        p.y = event.getBlock().getY();
-        p.z = event.getBlock().getZ();
+        p.world = world;
+        p.x = base.getX();
+        p.y = base.getY();
+        p.z = base.getZ();
         p.type = type;
         p.growAtEpochSeconds = System.currentTimeMillis() / 1000L + delaySec;
         store.addPending(p);
 
         plugin.getScheduler().schedule(p, delaySec);
         plugin.getLogger().info("[Lumber] scheduled regrow: " + type.name() + " at "
-                + p.x + "," + p.y + "," + p.z + " in " + delaySec + "s");
+                + p.x + "," + p.y + "," + p.z + " in " + delaySec + "s (zone " + zone.name + ")");
     }
 
     public static TreeType treeTypeOf(Material log) {
