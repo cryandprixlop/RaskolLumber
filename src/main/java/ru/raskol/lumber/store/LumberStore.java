@@ -104,4 +104,12 @@ public final class LumberStore {
 
     public void addPending(PendingTree p) { pending.add(p); save(); }
     public List<PendingTree> pending() { return pending; }
+
+    /** Уже запланирована посадка в этой точке? */
+    public boolean hasPendingAt(String world, int x, int y, int z) {
+        for (PendingTree p : pending) {
+            if (p.world.equals(world) && p.x == x && p.y == y && p.z == z) return true;
+        }
+        return false;
+    }
 }
