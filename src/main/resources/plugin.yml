@@ -1,0 +1,15 @@
+name: RaskolLumber
+version: ${project.version}
+main: ru.raskol.lumber.RaskolLumber
+api-version: '1.21'
+author: Baltimor
+description: Лесопилка: регенерация деревьев через 10 минут.
+softdepend: [WorldEdit]
+commands:
+  lumber:
+    description: Управление лесопилками
+    usage: /lumber help
+permissions:
+  lumber.admin:
+    description: Создание/удаление зон вырубки
+    default: op
