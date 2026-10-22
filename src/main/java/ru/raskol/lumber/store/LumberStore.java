@@ -1,6 +1,5 @@
 package ru.raskol.lumber.store;
 
-import org.bukkit.TreeType;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import ru.raskol.lumber.RaskolLumber;
@@ -51,8 +50,7 @@ public final class LumberStore {
                 p.x = s.getInt("x");
                 p.y = s.getInt("y");
                 p.z = s.getInt("z");
-                try { p.type = TreeType.valueOf(s.getString("type", "TREE")); }
-                catch (Throwable t) { p.type = TreeType.TREE; }
+                p.logMaterial = s.getString("log", "OAK_LOG");
                 p.growAtEpochSeconds = s.getLong("grow-at", 0);
                 pending.add(p);
             }
@@ -72,7 +70,7 @@ public final class LumberStore {
             s.set("x", p.x);
             s.set("y", p.y);
             s.set("z", p.z);
-            s.set("type", p.type.name());
+            s.set("log", p.logMaterial);
             s.set("grow-at", p.growAtEpochSeconds);
         }
         try {
@@ -105,10 +103,10 @@ public final class LumberStore {
     public void addPending(PendingTree p) { pending.add(p); save(); }
     public List<PendingTree> pending() { return pending; }
 
-    /** Уже запланирована посадка в этой точке? */
-    public boolean hasPendingAt(String world, int x, int y, int z) {
+    /** Уже запланирована посадка в этой колонне (x,z)? Одна посадка на дерево. */
+    public boolean hasPendingColumn(String world, int x, int z) {
         for (PendingTree p : pending) {
-            if (p.world.equals(world) && p.x == x && p.y == y && p.z == z) return true;
+            if (p.world.equals(world) && p.x == x && p.z == z) return true;
         }
         return false;
     }
