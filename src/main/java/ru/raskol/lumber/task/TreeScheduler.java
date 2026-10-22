@@ -131,10 +131,7 @@ public final class TreeScheduler implements Runnable {
 
     private boolean setLog(World w, int x, int y, int z, Material log) {
         Block b = w.getBlockAt(x, y, z);
-        Material m = b.getType();
-        if (m == Material.AIR || isLeaf(m) || m == Material.GRASS || m == Material.TALL_GRASS
-                || m == Material.FERN || m == Material.SNOW
-                || m.name().endsWith("_SAPLING")) {
+        if (isReplaceable(b.getType())) {
             b.setType(log, false);
             return true;
         }
@@ -144,6 +141,18 @@ public final class TreeScheduler implements Runnable {
     private void setLeaf(World w, int x, int y, int z, Material leaf) {
         Block b = w.getBlockAt(x, y, z);
         if (b.getType() == Material.AIR) b.setType(leaf, false);
+    }
+
+    /** Что можно заменить на ствол: воздух, декоративная растительность, саженцы. */
+    private boolean isReplaceable(Material m) {
+        if (m == Material.AIR || m == Material.CAVE_AIR || m == Material.VOID_AIR) return true;
+        if (isLeaf(m)) return true;
+        if (m.name().endsWith("_SAPLING")) return true;
+        String n = m.name();
+        return n.equals("SHORT_GRASS") || n.equals("TALL_GRASS") || n.equals("FERN")
+                || n.equals("LARGE_FERN") || n.equals("DEAD_BUSH")
+                || n.equals("SNOW") || n.equals("GRASS")
+                || n.equals("VINE") || n.equals("GLOW_LICHEN");
     }
 
     private boolean isLog(Material m) { return m.name().endsWith("_LOG") || m.name().endsWith("_WOOD"); }
