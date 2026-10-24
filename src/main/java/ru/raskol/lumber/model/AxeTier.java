@@ -1,20 +1,27 @@
 package ru.raskol.lumber.model;
 
-/** Тиры топоров. VANILLA = обычный ванильный (без PDC-тега). */
+/**
+ * Тиры топоров. VANILLA = обычный ванильный топор (без PDC-тега).
+ * dropsFragment — какой фрагмент роняет этот топор.
+ * craftFragment — какой фрагмент нужен для крафта этого топора.
+ */
 public enum AxeTier {
-    VANILLA("§7Обычный топор", "§7", null),
-    NEWCOMER("§eТопор новичка", "§e", null),
-    LUMBERJACK("§bТопор дровосека", "§b", "NEWCOMER"),
-    OLAF("§5Топор Олафа", "§5", "LUMBERJACK");
+
+    VANILLA("§7Обычный топор", "§7", "NEWCOMER", null),
+    NEWCOMER("§eТопор новичка", "§e", "LUMBERJACK", "NEWCOMER"),
+    LUMBERJACK("§bТопор дровосека", "§b", "OLAF", "LUMBERJACK"),
+    OLAF("§5Топор Олафа", "§5", null, "OLAF");
 
     public final String displayName;
     public final String color;
-    public final String previousTier;
+    private final String dropsFragmentName;
+    private final String craftFragmentName;
 
-    AxeTier(String displayName, String color, String previousTier) {
+    AxeTier(String displayName, String color, String dropsFragmentName, String craftFragmentName) {
         this.displayName = displayName;
         this.color = color;
-        this.previousTier = previousTier;
+        this.dropsFragmentName = dropsFragmentName;
+        this.craftFragmentName = craftFragmentName;
     }
 
     public static AxeTier fromName(String name) {
@@ -26,16 +33,13 @@ public enum AxeTier {
         }
     }
 
-    /** Какой фрагмент даёт этот тир (для следующего тира). */
-    public AxeTier droppedFragment() {
-        for (AxeTier t : values()) {
-            if (name().equals(t.previousTier)) return t;
-        }
-        return null;
+    /** Фрагмент какого тира роняет этот топор (null = ничего). */
+    public AxeTier dropsFragment() {
+        return dropsFragmentName == null ? null : valueOf(dropsFragmentName);
     }
 
-    /** Какой фрагмент нужен для крафта этого тира. */
-    public AxeTier requiredFragment() {
-        return fromName(previousTier);
+    /** Фрагмент какого тира нужен для крафта этого топора (null = не крафтится). */
+    public AxeTier craftFragment() {
+        return craftFragmentName == null ? null : valueOf(craftFragmentName);
     }
 }
