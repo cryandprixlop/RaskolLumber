@@ -20,11 +20,29 @@ import java.util.Random;
 /**
  * Рулетка лута при рубке брёвен топором:
  * золотой саженец -> фрагмент следующего топора -> множитель брёвен.
- * Одна рулетка на дерево (дедуп по колонне x,z в окне 2 сек) — защита от TreeChop-абуза.
+ * Одна рулетка на дерево (дедуп по колонне x,z в окне 2 сек).
+ * Шансы берутся из конфига loot.*, а при его отсутствии — из встроенных дефолтов.
  */
 public final class AxeLootListener implements Listener {
 
     private static final long ROLL_WINDOW_MS = 2000;
+
+    /** Дефолты по спеке — работают, даже если серверный конфиг устарел. */
+    private static final Map<String, Double> DEFAULTS = Map.ofEntries(
+            Map.entry("vanilla.golden-chance", 0.001),
+            Map.entry("vanilla.next-fragment-chance", 5.0),
+            Map.entry("vanilla.double-chance", 2.0),
+            Map.entry("improved.golden-chance", 0.002),
+            Map.entry("improved.next-fragment-chance", 4.0),
+            Map.entry("improved.double-chance", 4.0),
+            Map.entry("lumberjack.golden-chance", 0.01),
+            Map.entry("lumberjack.next-fragment-chance", 4.0),
+            Map.entry("lumberjack.double-chance", 20.0),
+            Map.entry("olaf.golden-chance", 0.5),
+            Map.entry("olaf.double-chance", 35.0),
+            Map.entry("olaf.triple-chance", 15.0),
+            Map.entry("olaf.quad-chance", 10.0)
+    );
 
     private final RaskolLumber plugin;
     private final AxeService axeService;
@@ -34,6 +52,11 @@ public final class AxeLootListener implements Listener {
     public AxeLootListener(RaskolLumber plugin, AxeService axeService) {
         this.plugin = plugin;
         this.axeService = axeService;
+        if (plugin.getConfig().getConfigurationSection("loot") == null) {
+            plugin.getLogger().warning("[Lumber] В серверном config.yml нет секции 'loot'! "
+                    + "Удали plugins/RaskolLumber/config.yml и перезапусти, "
+                    + "либо используй встроенные дефолты (они активны сейчас).");
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -66,7 +89,7 @@ public final class AxeLootListener implements Listener {
         double acc = 0.0;
 
         // 1) Золотой саженец
-        double golden = plugin.getConfig().getDouble("loot." + section + ".golden-chance", 0.0);
+        double golden = chance(section, "golden-chance");
         acc += golden;
         if (roll < acc) {
             give(player, axeService.createGoldenSapling(1));
@@ -77,7 +100,7 @@ public final class AxeLootListener implements Listener {
         }
 
         // 2) Фрагмент следующего топора
-        double fragChance = plugin.getConfig().getDouble("loot." + section + ".next-fragment-chance", 0.0);
+        double fragChance = chance(section, "next-fragment-chance");
         acc += fragChance;
         if (roll < acc) {
             AxeTier fragTier = tier.dropsFragment();
@@ -91,9 +114,9 @@ public final class AxeLootListener implements Listener {
         }
 
         // 3) Множитель брёвен (отдельный ролл)
-        double quad = plugin.getConfig().getDouble("loot." + section + ".quad-chance", 0.0);
-        double triple = plugin.getConfig().getDouble("loot." + section + ".triple-chance", 0.0);
-        double dbl = plugin.getConfig().getDouble("loot." + section + ".double-chance", 0.0);
+        double quad = chance(section, "quad-chance");
+        double triple = chance(section, "triple-chance");
+        double dbl = chance(section, "double-chance");
         double mRoll = random.nextDouble(100.0);
         int multiplier = 1;
         if (mRoll < quad) multiplier = 4;
@@ -103,7 +126,15 @@ public final class AxeLootListener implements Listener {
         if (multiplier > 1) {
             loc.getWorld().dropItemNaturally(loc, new ItemStack(log, multiplier - 1));
             player.sendMessage("§e✦ Богатое дерево! §7×" + multiplier + " брёвен");
+            plugin.getLogger().info("[Lumber] " + player.getName()
+                    + ": множитель ×" + multiplier + " (" + tier.name() + ")");
         }
+    }
+
+    /** Шанс из конфига, а при отсутствии ключа — встроенный дефолт по спеке. */
+    private double chance(String section, String key) {
+        return plugin.getConfig().getDouble("loot." + section + "." + key,
+                DEFAULTS.getOrDefault(section + "." + key, 0.0));
     }
 
     private String sectionOf(AxeTier tier) {
