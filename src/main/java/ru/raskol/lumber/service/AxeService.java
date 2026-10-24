@@ -32,7 +32,7 @@ public final class AxeService {
         return item != null && item.getType().name().endsWith("_AXE");
     }
 
-    /** Тир топора в руке; null если это не топор. */
+    /** Тир топора; null если это не топор. */
     public AxeTier tierOf(ItemStack item) {
         if (!isAxe(item)) return null;
         ItemMeta meta = item.getItemMeta();
@@ -48,7 +48,7 @@ public final class AxeService {
 
     public ItemStack createAxe(AxeTier tier) {
         Material base = switch (tier) {
-            case NEWCOMER -> Material.IRON_AXE;
+            case IMPROVED -> Material.IRON_AXE;
             case LUMBERJACK -> Material.DIAMOND_AXE;
             case OLAF -> Material.NETHERITE_AXE;
             default -> Material.IRON_AXE;
@@ -77,9 +77,9 @@ public final class AxeService {
         ItemStack item = new ItemStack(Material.FLINT, amount);
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return item;
-        meta.setDisplayName(tier.color + "Фрагмент " + tier.displayName);
+        meta.setDisplayName(tier.fragmentDisplayName);
         List<String> lore = new ArrayList<>();
-        lore.add("§7Собери §e3 §7фрагмента для крафта");
+        lore.add("§7Собери §e3 §7фрагмента для крафта:");
         lore.add("§7" + tier.displayName);
         lore.add("§8Шанс успеха крафта: 25%");
         meta.setLore(lore);
