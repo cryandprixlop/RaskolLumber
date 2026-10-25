@@ -46,6 +46,12 @@ public final class AxeService {
         }
     }
 
+    /** true = кастомный топор (не ванильный) — такие неломаемые. */
+    public boolean isCustomAxe(ItemStack item) {
+        AxeTier tier = tierOf(item);
+        return tier != null && tier != AxeTier.VANILLA;
+    }
+
     public ItemStack createAxe(AxeTier tier) {
         Material base = switch (tier) {
             case IMPROVED -> Material.IRON_AXE;
@@ -62,10 +68,12 @@ public final class AxeService {
         if (tier == AxeTier.OLAF) {
             lore.add("§7Легендарный топор северного мастера");
         }
-        meta.setLore(lore);
         if (tier != AxeTier.VANILLA) {
+            lore.add("§8Неломаемый");
+            meta.setUnbreakable(true);
             meta.getPersistentDataContainer().set(axeTierKey, PersistentDataType.STRING, tier.name());
         }
+        meta.setLore(lore);
         item.setItemMeta(meta);
         return item;
     }
