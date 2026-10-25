@@ -65,6 +65,14 @@ public final class LicenseStore {
 
     public License get(String uuid) { return licenses.get(uuid); }
 
+    public int activeCount() {
+        int count = 0;
+        for (License lic : licenses.values()) {
+            if (lic.isValid()) count++;
+        }
+        return count;
+    }
+
     public void issue(String uuid, String name, int days) {
         long now = System.currentTimeMillis() / 1000L;
         License lic = licenses.get(uuid);
