@@ -9,6 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import ru.raskol.lumber.command.LumberCommand;
 import ru.raskol.lumber.hook.SelectionHook;
 import ru.raskol.lumber.listener.AxeCraftListener;
+import ru.raskol.lumber.listener.AxeDurabilityListener;
 import ru.raskol.lumber.listener.AxeLootListener;
 import ru.raskol.lumber.listener.GoldenSaplingListener;
 import ru.raskol.lumber.listener.LumberListener;
@@ -56,6 +57,8 @@ public final class RaskolLumber extends JavaPlugin {
                 new AxeCraftListener(this, axeService), this);
         getServer().getPluginManager().registerEvents(
                 new GoldenSaplingListener(this, axeService), this);
+        getServer().getPluginManager().registerEvents(
+                new AxeDurabilityListener(this, axeService), this);
 
         getLogger().info("RaskolLumber v" + getDescription().getVersion()
                 + " включён. Зон: " + store.all().size()
