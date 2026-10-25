@@ -77,11 +77,6 @@ public final class RaskolLumber extends JavaPlugin {
     }
 
     private int countLicenses() {
-        int count = 0;
-        for (ru.raskol.lumber.model.License lic : new java.util.ArrayList<>(java.util.List.of())) {
-            // placeholder to avoid unused warning — real count below
-        }
-        // считаем через store: лицензии хранятся в LicenseStore
         return licenseStore == null ? 0 : licenseStore.activeCount();
     }
 
