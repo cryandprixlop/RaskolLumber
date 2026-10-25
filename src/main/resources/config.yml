@@ -1,9 +1,14 @@
 # ===== RaskolLumber =====
-regrow-seconds: 600         # через сколько вырастет новое дерево (600 = 10 мин)
-require-axe: true           # регенерация в зоне только при рубке топором
-allow-player-drop: true     # выпадать ли брёвна игроку (false — нет, регенерация всё равно)
+regrow-seconds: 600
+require-axe: true
+allow-player-drop: true
 
-# Материалы-топоры (для рубки и бонусов)
+license:
+  default-price: 500.0
+  duration-days: 30
+
+town-account-prefix: "town-"
+
 axes:
   - WOODEN_AXE
   - STONE_AXE
@@ -12,7 +17,6 @@ axes:
   - DIAMOND_AXE
   - NETHERITE_AXE
 
-# Материалы-бревна (считаются деревом)
 logs:
   - OAK_LOG
   - SPRUCE_LOG
@@ -23,25 +27,23 @@ logs:
   - MANGROVE_LOG
   - CHERRY_LOG
 
-# ===== Топоры дровосека =====
 axe:
-  craft-success-chance: 25.0   # шанс крафта топора из 3 фрагментов
+  craft-success-chance: 25.0
 
-# Шансы лута при рубке дерева (одна рулетка на дерево)
 loot:
-  vanilla:            # обычный ванильный топор
+  vanilla:
     golden-chance: 0.001
     next-fragment-chance: 5.0
     double-chance: 2.0
-  improved:           # Улучшенный топор
+  improved:
     golden-chance: 0.002
     next-fragment-chance: 4.0
     double-chance: 4.0
-  lumberjack:         # Топор дровосека
+  lumberjack:
     golden-chance: 0.01
     next-fragment-chance: 4.0
     double-chance: 20.0
-  olaf:               # Топор Олафа
+  olaf:
     golden-chance: 0.5
     double-chance: 35.0
     triple-chance: 15.0
